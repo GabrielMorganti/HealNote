@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .home-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #364d5b;
+    }
+
+    .calendar-header {
+        background: #eef3f7;
+        border-radius: 10px;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(36px, 1fr));
+        gap: 0.45rem;
+    }
+
+    .weekday {
+        text-align: center;
+        font-size: 0.78rem;
+        color: #7d909b;
+        font-weight: 700;
+    }
+
+    .day-cell {
+        text-align: center;
+        padding: 0.38rem 0;
+        border-radius: 999px;
+        color: #4f6270;
+        font-weight: 600;
+        font-size: 0.92rem;
+    }
+
+    .day-empty {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .day-today {
+        background: #d9ecf8;
+        color: #2d4f66;
+        box-shadow: inset 0 0 0 1px #b8d7e8;
+    }
+
+    .item-row {
+        border: 1px solid #e9eef2;
+        border-radius: 12px;
+        padding: 0.75rem;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.015);
+    }
+    
+    .item-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    
+    .bg-pill-orange { background: #fdf5ea; color: #ebb67e; border: 1px solid #f6e4d0; }
+    .bg-pill-blue { background: #eaf1fa; color: #7f9ec2; border: 1px solid #d8e5f5; }
+    .bg-pill-green { background: #e6f6ef; color: #7cc29e; border: 1px solid #d4ece1; }
+
+    .soft-badge {
+        border: 1px solid #d1dfe6;
+        color: #78909e;
+        border-radius: 50%; /* Circulo certinho */
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .quick-btn {
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: #2e4858;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .quick-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+    }
+
+    .quick-btn-green {
+        background-color: #b9dacd;
+        color: #fff;
+    }
+
+    .quick-btn-green:hover {
+        background-color: #a4cebe;
+        color: #fff;
+    }
+
+    .quick-btn-blue {
+        background-color: #dcebf4;
+        color: #4e6a7c;
+    }
+
+    .quick-btn-purple {
+        background-color: #e2e3ef;
+        color: #4e6a7c;
+    }
+
+    /* Scroll vertical modificado - Limitador de cards baseado em max-height com scroll customizado */
+    .scroll-list-wrapper {
+        max-height: 250px;
+        overflow-y: auto;
+        padding-right: 6px;
+    }
+
+    /* Scrollbar minimalista para parecer app nativo */
+    .scroll-list-wrapper::-webkit-scrollbar {
+        width: 4px;
+    }
+    .scroll-list-wrapper::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .scroll-list-wrapper::-webkit-scrollbar-thumb {
+        background: rgba(143, 208, 192, 0.4); 
+        border-radius: 4px;
+    }
+    .scroll-list-wrapper::-webkit-scrollbar-thumb:hover {
+        background: rgba(143, 208, 192, 0.8); 
+    }
+
+</style>
+
+<div class="row g-3 px-0">
+    <div class="col-lg-7">
+        <section class="panel-card p-3 p-md-4 h-100">
+            <div class="calendar-header d-flex align-items-center justify-content-between px-3 py-2 mb-3">
+                <button class="btn btn-sm btn-soft" type="button" disabled><i class="bi bi-chevron-left"></i></button>
+                <div class="home-title">{{ mes_atual }}</div>
+                <button class="btn btn-sm btn-soft" type="button" disabled><i class="bi bi-chevron-right"></i></button>
+            </div>
+
+            <div class="calendar-grid mb-2">
+                {% for dia in dias_semana %}
+                    <div class="weekday">{{ dia }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="calendar-grid">
+                {% for semana in calendario %}
+                    {% for dia in semana %}
+                        {% if dia == 0 %}
+                            <div class="day-cell day-empty">0</div>
+                        {% elif dia == dia_hoje %}
+                            <div class="day-cell day-today">{{ dia }}</div>
+                        {% else %}
+                            <div class="day-cell">{{ dia }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-5">
+        <section class="panel-card p-3 p-md-4 h-100">
+            <h2 class="home-title mb-3">Próximos Remédios</h2>
+            <div class="scroll-list-wrapper">
+                <div class="d-grid gap-3">
+                    {% for medicamento in medicamentos %}
+                        <div class="item-row d-flex justify-content-between align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <!-- Icone estilo potinho -->
+                                <div class="item-icon-box {% cycle 'bg-pill-orange' 'bg-pill-blue' 'bg-pill-blue' 'bg-pill-green' %}">
+                                    <i class="bi bi-prescription2"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-truncate" style="color: #4b6678; font-size: 1.05rem; max-width: 140px;">{{ medicamento.nome }}</div>
+                                    <small class="text-secondary" style="font-weight: 500;">{{ medicamento.dosagem }} - {{ medicamento.horario }}</small>
+                                </div>
+                            </div>
+                            <span class="soft-badge"><i class="bi bi-clock"></i></span>
+                        </div>
+                    {% empty %}
+                        <p class="muted mb-0">Nenhum medicamento cadastrado.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-7">
+        <section class="panel-card p-3 p-md-4 h-100">
+            <h2 class="home-title mb-3">Próximas Consultas</h2>
+            <div class="scroll-list-wrapper">
+                <div class="d-grid gap-3">
+                    {% for consulta in consultas %}
+                        <div class="item-row d-flex justify-content-between align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="text-center" style="color: #6bae9e;">
+                                    <i class="bi bi-calendar-event fs-5"></i>
+                                    <div class="fw-bold" style="font-size: 1.1rem; line-height: 1;">{{ consulta.data.day }}</div>
+                                </div>
+                                <div style="border-left: 2px solid #e1ebe7; padding-left: 1rem;">
+                                    <div class="fw-bold text-truncate" style="color: #4b6678; font-size: 1.05rem; max-width: 180px;">{{ consulta.local }}</div>
+                                    <small class="text-secondary" style="font-weight: 500;">{{ consulta.data|date:'d \d\e F \d\e Y' }}</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 text-secondary fw-semibold">
+                                <i class="bi bi-clock"></i> {{ consulta.horario|time:'H:i' }}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="muted mb-0">Nenhuma consulta cadastrada.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-5">
+        <section class="panel-card p-3 p-md-4 h-100">
+            <h2 class="home-title mb-3">Últimas Receitas</h2>
+            <div class="scroll-list-wrapper">
+                <div class="d-grid gap-3">
+                    {% for receita in receitas %}
+                        <div class="item-row d-flex justify-content-between align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="item-icon-box " style="background: #f1f2f8; color:#7d7e9b; border: 1px solid #e7e8f1;">
+                                    <i class="bi bi-file-medical"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="color: #4b6678; font-size: 1.05rem;">Receita enviada</div>
+                                    <small class="text-secondary" style="font-weight: 500;">{{ receita.data_upload|date:'d/m/Y H:i' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="muted mb-0">Nenhuma receita enviada.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 mt-4">
+        <div class="row g-2 g-md-3">
+            <div class="col-md-4">
+                <a class="quick-btn py-3 quick-btn-green" href="{% url 'medicamento_create' %}" style="border-radius: 12px;">
+                    <span class="d-flex align-items-center fw-bold" style="color: #ffffff; font-size: 1.1rem;"><i class="bi bi-capsule fs-4 me-2"></i> Cadastrar Remédio</span>
+                    <i class="bi bi-chevron-right text-white"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="quick-btn py-3 quick-btn-blue" href="{% url 'consulta_create' %}" style="border-radius: 12px;">
+                    <span class="d-flex align-items-center fw-bold" style="color: #5d758f; font-size: 1.1rem;"><i class="bi bi-calendar-plus fs-4 me-2" style="color: #8db5c4;"></i> Cadastrar Consulta</span>
+                    <i class="bi bi-chevron-right" style="color: #799cac;"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="quick-btn py-3 quick-btn-purple" href="{% url 'receita_create' %}" style="border-radius: 12px;">
+                    <span class="d-flex align-items-center fw-bold" style="color: #63617b; font-size: 1.1rem;"><i class="bi bi-file-earmark-medical fs-4 me-2" style="color: #9295aa;"></i> Enviar Receita</span>
+                    <i class="bi bi-chevron-right" style="color: #8b8eab;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

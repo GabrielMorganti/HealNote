@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 560px;">
+    <h1>Excluir consulta</h1>
+    <p>Deseja realmente excluir a consulta em {{ object.data }} as {{ object.horario }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+            <button class="btn btn-danger" type="submit">Excluir</button>
+            <a class="btn btn-secondary" href="{% url 'consulta_list' %}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

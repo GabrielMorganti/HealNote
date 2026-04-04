@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+<div class="card">
+    <div class="actions" style="justify-content: space-between;">
+        <h1>Consultas</h1>
+        <a class="btn btn-primary align-self-center" href="{% url 'consulta_create' %}">Nova consulta</a>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table id="consultas-table" class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Local</th>
+                    <th>Descrição</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for consulta in object_list %}
+                    <tr>
+                        <td>{{ consulta.data|date:'d/m/Y' }}</td>
+                        <td>{{ consulta.horario|time:'H:i' }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span>{{ consulta.local }}</span>
+                                {% if consulta.latitude and consulta.longitude %}
+                                    <a
+                                        href="https://www.google.com/maps?q={{ consulta.latitude }},{{ consulta.longitude }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="text-decoration-none"
+                                        title="Ver local no mapa"
+                                    >
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ consulta.descricao|truncatechars:60 }}</td>
+                        <td class="text-end">
+                            <div class="actions justify-content-end">
+                                <a class="btn btn-soft" href="{% url 'consulta_update' consulta.pk %}">Editar</a>
+                                <a class="btn btn-danger" href="{% url 'consulta_delete' consulta.pk %}">Excluir</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not object_list %}
+        <p class="muted mb-0 mt-3">Nenhuma consulta cadastrada.</p>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(function () {
+        $('#consultas-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/pt-BR.json'
+            },
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
+            order: [[0, 'asc'], [1, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: 4 }
+            ]
+        });
+    });
+</script>
+{% endblock %}

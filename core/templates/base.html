@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Saude</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-main: #8fd0c0;
+            --brand-soft: #eef7f4;
+            --line: #dbe7e4;
+            --text-main: #21343f;
+            --text-soft: #748792;
+            --panel: #ffffff;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: radial-gradient(circle at 0% 0%, #f2fbf8, #f8fbfd 52%, #eef4fb 100%);
+            color: var(--text-main);
+        }
+
+        .topbar {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(6px);
+            border-radius: 14px;
+        }
+
+        .brand-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        .brand-name {
+            font-size: 1.95rem;
+            font-weight: 700;
+            color: #2d4d5a;
+            letter-spacing: 0.2px;
+        }
+
+        .panel-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--panel);
+            box-shadow: 0 8px 25px rgba(23, 44, 56, 0.05);
+        }
+
+        .muted {
+            color: var(--text-soft);
+        }
+
+        .btn.secondary {
+            background: #e8f1f5;
+            border: 1px solid #cadde7;
+            color: #355365;
+        }
+
+        .btn.secondary:hover {
+            background: #dbe9f0;
+            color: #1d3b4e;
+        }
+
+        .btn-soft {
+            background: var(--brand-soft);
+            border: 1px solid var(--line);
+            color: #27424e;
+        }
+
+        .btn-soft:hover {
+            background: #e2f1ec;
+            color: #1d353f;
+            border-color: #c7ddd6;
+        }
+
+        form p {
+            margin-bottom: 0.9rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            border: 1px solid #c8d9df;
+            border-radius: 8px;
+            padding: 0.55rem;
+            background: #fff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .top-actions .btn {
+            border-radius: 10px;
+        }
+
+        /* Classes auxiliares para manter outras telas (.card, .grid, .clean) */
+        .card {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--line);
+            margin-bottom: 1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+        
+        ul.clean {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        ul.clean li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--line);
+        }
+        ul.clean li:last-child {
+            border-bottom: none;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg topbar px-3 px-md-4 py-2 mx-auto mt-3 mb-4" style="width: min(1000px, 96%);">
+        <div class="container-fluid p-0">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+                <img src="{% static 'core/logo.png' %}" alt="Logo HealNote" class="brand-logo" style="width: 50px; height: 50px;">
+                <span class="brand-name" style="color: #2d4d5a; font-weight: 700; font-size: 1.6rem;">HealNote</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                {% if user.is_authenticated %}
+                    <ul class="navbar-nav ms-auto gap-lg-2 pt-2 pt-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Início</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'medicamento_list' %}">Remédios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'consulta_list' %}">Consultas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'receita_list' %}">Receitas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'lembrete_list' %}">Lembretes</a></li>
+                        <li class="nav-item d-lg-none mt-2">
+                            <form action="{% url 'logout' %}" method="post" class="mb-0">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger w-100 text-start">Sair</button>
+                            </form>
+                        </li>
+                    </ul>
+                {% else %}
+                    <div class="d-flex gap-2 ms-auto pt-2 pt-lg-0">
+                        <a class="btn btn-primary" style="background:var(--brand-main); color:#1a332a; border:none;" href="{% url 'login' %}">Entrar</a>
+                        <a class="btn btn-outline-secondary" href="{% url 'signup' %}">Criar conta</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if user.is_authenticated %}
+                <div class="dropdown ms-2 d-none d-lg-block">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle rounded-circle" style="background: #dcebf4; color: #527387; padding: 0.4rem; font-size: 1.3rem;" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-fill"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border:none; border-radius:12px;">
+                        <li><h6 class="dropdown-header">Olá, {{ user.username }}</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" class="mb-0 px-2 py-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger w-100 text-start">Sair</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container" style="width: min(1000px, 96%);">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

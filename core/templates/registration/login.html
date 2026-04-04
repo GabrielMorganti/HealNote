@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 520px; margin: 1rem auto;">
+    <h1>Entrar</h1>
+    <p class="muted">Acesse sua conta para controlar medicamentos e consultas.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="actions">
+            <button class="btn btn-primary" type="submit">Login</button>
+            <a class="btn btn-success" href="{% url 'signup' %}">Criar conta</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

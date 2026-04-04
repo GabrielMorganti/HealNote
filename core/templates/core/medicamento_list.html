@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+<div class="card">
+    <div class="actions" style="justify-content: space-between;">
+        <h1>Medicamentos</h1>
+        <a class="btn btn-primary align-self-center" href="{% url 'medicamento_create' %}">Novo medicamento</a>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table id="medicamentos-table" class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Dosagem</th>
+                    <th>Horário</th>
+                    <th>Frequência</th>
+                    <th>Observação</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for medicamento in object_list %}
+                    <tr>
+                        <td><strong>{{ medicamento.nome }}</strong></td>
+                        <td>{{ medicamento.dosagem }}</td>
+                        <td>{{ medicamento.horario|time:'H:i' }}</td>
+                        <td>{{ medicamento.frequencia }}</td>
+                        <td>{{ medicamento.observacoes }}</td>
+                        <td class="text-end">
+                            <div class="actions justify-content-end">
+                                <a class="btn btn-soft" href="{% url 'medicamento_update' medicamento.pk %}">Editar</a>
+                                <a class="btn btn-danger" href="{% url 'medicamento_delete' medicamento.pk %}">Excluir</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not object_list %}
+        <p class="muted mb-0 mt-3">Nenhum medicamento cadastrado.</p>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(function () {
+        $('#medicamentos-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/pt-BR.json'
+            },
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: 4 }
+            ]
+        });
+    });
+</script>
+{% endblock %}

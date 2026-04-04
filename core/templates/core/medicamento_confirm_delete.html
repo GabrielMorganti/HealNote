@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 560px;">
+    <h1>Excluir medicamento</h1>
+    <p>Deseja realmente excluir <strong>{{ object.nome }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+            <button class="btn btn-danger" type="submit">Excluir</button>
+            <a class="btn btn-secondary" href="{% url 'medicamento_list' %}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

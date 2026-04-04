@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<div class="card justify-content-center">
+    <h1>{% if object %}Editar{% else %}Nova{% endif %} consulta</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <p>
+            <label for="{{ form.data.id_for_label }}">Data</label>
+            {{ form.data }}
+            {% if form.data.errors %}<small class="text-danger">{{ form.data.errors|striptags }}</small>{% endif %}
+        </p>
+
+        <p>
+            <label for="{{ form.horario.id_for_label }}">Horario</label>
+            {{ form.horario }}
+            {% if form.horario.errors %}<small class="text-danger">{{ form.horario.errors|striptags }}</small>{% endif %}
+        </p>
+
+        <p>
+            <label for="{{ form.descricao.id_for_label }}">Descricao</label>
+            {{ form.descricao }}
+            {% if form.descricao.errors %}<small class="text-danger">{{ form.descricao.errors|striptags }}</small>{% endif %}
+        </p>
+
+        <p>
+            <label for="{{ form.local.id_for_label }}">Endereco da consulta</label>
+            <div class="d-flex gap-2 flex-wrap">
+                {{ form.local }}
+                <button class="btn btn-soft" type="button" id="buscar-endereco">Buscar no mapa</button>
+            </div>
+            {% if form.local.errors %}<small class="text-danger">{{ form.local.errors|striptags }}</small>{% endif %}
+        </p>
+
+        {{ form.latitude }}
+        {{ form.longitude }}
+
+        <div class="mb-3">
+            <div id="mapa-consulta" style="height: 320px; border: 1px solid #dbe7e4; border-radius: 10px;"></div>
+            <small class="muted">Clique no mapa para ajustar o ponto exato da consulta.</small>
+            {% if form.non_field_errors %}<small class="text-danger d-block">{{ form.non_field_errors|striptags }}</small>{% endif %}
+        </div>
+
+        <p class="muted mb-3" id="coords-preview">Latitude: - | Longitude: -</p>
+
+        <div class="actions">
+            <button class="btn btn-primary" type="submit">Salvar</button>
+            <a class="btn btn-danger" href="{% url 'consulta_list' %}">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    (function () {
+        const latInput = document.getElementById("id_latitude");
+        const lngInput = document.getElementById("id_longitude");
+        const localInput = document.getElementById("id_local");
+        const preview = document.getElementById("coords-preview");
+        const buscarBtn = document.getElementById("buscar-endereco");
+
+        const defaultLat = -23.550520;
+        const defaultLng = -46.633308;
+        const currentLat = parseFloat(latInput.value || defaultLat);
+        const currentLng = parseFloat(lngInput.value || defaultLng);
+
+        const map = L.map("mapa-consulta").setView([currentLat, currentLng], latInput.value && lngInput.value ? 14 : 11);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
+
+        const marker = L.marker([currentLat, currentLng], { draggable: true }).addTo(map);
+
+        function updateCoords(lat, lng) {
+            latInput.value = lat.toFixed(6);
+            lngInput.value = lng.toFixed(6);
+            preview.textContent = `Latitude: ${latInput.value} | Longitude: ${lngInput.value}`;
+        }
+
+        updateCoords(currentLat, currentLng);
+
+        marker.on("dragend", function (event) {
+            const point = event.target.getLatLng();
+            updateCoords(point.lat, point.lng);
+        });
+
+        map.on("click", function (event) {
+            marker.setLatLng(event.latlng);
+            updateCoords(event.latlng.lat, event.latlng.lng);
+        });
+
+        buscarBtn.addEventListener("click", async function () {
+            const endereco = (localInput.value || "").trim();
+            if (!endereco) {
+                alert("Digite um endereco antes de buscar no mapa.");
+                return;
+            }
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(endereco)}`;
+                const response = await fetch(url, {
+                    headers: { "Accept": "application/json" }
+                });
+                const data = await response.json();
+
+                if (!data.length) {
+                    alert("Endereco nao encontrado. Tente detalhar mais.");
+                    return;
+                }
+
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+
+                map.setView([lat, lng], 16);
+                marker.setLatLng([lat, lng]);
+                updateCoords(lat, lng);
+            } catch (error) {
+                alert("Nao foi possivel consultar o mapa agora.");
+            }
+        });
+    })();
+</script>
+{% endblock %}

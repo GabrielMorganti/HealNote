@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+<div class="card">
+    <div class="actions" style="justify-content: space-between;">
+        <h1>Lembretes</h1>
+        <a class="btn btn-primary align-self-center" href="{% url 'lembrete_create' %}">Novo lembrete</a>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table id="lembretes-table" class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Medicamento</th>
+                    <th>Horário</th>
+                    <th>Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lembrete in object_list %}
+                    <tr>
+                        <td>{{ lembrete.medicamento.nome }}</td>
+                        <td>{{ lembrete.horario|time:'H:i' }}</td>
+                        <td>
+                            {% if lembrete.ativo %}
+                                <span class="badge text-bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="actions justify-content-end">
+                                <a class="btn btn-soft" href="{% url 'lembrete_update' lembrete.pk %}">Editar</a>
+                                <a class="btn btn-danger" href="{% url 'lembrete_delete' lembrete.pk %}">Excluir</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not object_list %}
+        <p class="muted mb-0 mt-3">Nenhum lembrete cadastrado.</p>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(function () {
+        $('#lembretes-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/pt-BR.json'
+            },
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: 3 }
+            ]
+        });
+    });
+</script>
+{% endblock %}
