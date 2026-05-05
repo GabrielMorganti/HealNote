@@ -90,4 +90,5 @@ python manage.py test
 
 Se tudo estiver correto, os testes serao executados sem erros.
 
-Alteração para Praticando
+### Documentação Revisada para Aplicando conhecimento 
+-Realizada-
