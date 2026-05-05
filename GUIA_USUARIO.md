@@ -117,5 +117,3 @@ Use o menu para navegar entre os modulos.
 ---
 
 Se alguma funcionalidade nao aparecer para voce, confirme se esta logado corretamente com seu usuario.
-
-Alteração para Praticando
